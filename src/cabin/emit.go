@@ -6,6 +6,7 @@ import (
   "io"
   "time"
   "bytes"
+  "strings"
 )
 
 func formatTimestamp(timestamp time.Time) string {
@@ -70,11 +71,17 @@ func log_map(writer io.Writer, event *Event, type_ reflect.Type, value reflect.V
 func log_struct(writer io.Writer, event *Event, type_ reflect.Type, value reflect.Value) {
   fmt.Fprintf(writer, "%s: ", formatTimestamp(event.Timestamp))
 
-  fmt.Fprintf(writer, "<%s ", type_.Name())
+  fmt.Fprintf(writer, "<%s.%s ", type_.PkgPath(), type_.Name())
   /* For every field in this object, emit the name, type_, and current value */
   for i := 0; i < type_.NumField(); i++ {
     field := type_.Field(i)
     if field.Anonymous {
+      continue;
+    }
+
+    /* Skip this field if it is not exported.
+     * This is identifiable as fieldnames with first letter being lowercase. */
+    if strings.ToUpper(field.Name[0:1]) != field.Name[0:1] {
       continue;
     }
 
