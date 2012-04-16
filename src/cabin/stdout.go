@@ -4,10 +4,14 @@ import (
   "os"
 )
 
-func StdoutLogger(channel chan *Event) {
-  for {
-    event := <- channel
+type Stdout struct {
+}
+
+func (stdout Stdout) Run(channel EventChannel) error {
+  for event := range(channel) {
     emit(os.Stdout, event)
   }
+
+  return nil
 }
 
