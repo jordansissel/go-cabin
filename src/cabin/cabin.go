@@ -63,6 +63,8 @@ func (cabin *Cabin) SubscribeFunc(receiver ReceiverFunc) Subscription {
   cabin.Initialize()
   channel := make(EventChannel)
   id := nextId()
+  cabin.channels[id] = channel
+
   go cabin.activateSubscription(receiver, id, channel)
   return id
 } /* Cabin.SubscribeFunc */
@@ -78,7 +80,6 @@ func (cabin *Cabin) Subscribe(receiver Receiver) Subscription {
 
 func (cabin *Cabin) activateSubscription(receiver ReceiverFunc, id Subscription,
                                          channel EventChannel) {
-  cabin.channels[id] = channel
   defer func() { 
     cabin.notify_closed <- id 
     delete(cabin.channels, id)
